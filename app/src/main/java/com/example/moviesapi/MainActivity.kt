@@ -30,7 +30,6 @@ class MainActivity : ComponentActivity() {
                     containerColor = Color.Gray
                 ) { innerPadding ->
                     NavControllerApp(
-                        apiService = apiService,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

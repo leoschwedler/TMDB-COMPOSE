@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,97 +21,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.moviesapi.data.remote.api.ApiService
 import com.example.moviesapi.data.remote.dto.ResultDTO
 import com.example.moviesapi.presentation.components.MovieSession
+import com.example.moviesapi.presentation.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(
-    apiService: ApiService,
     navController: NavHostController,
+    viewModel: HomeViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    var nowPlaying by remember { mutableStateOf<List<ResultDTO>>(emptyList()) }
-    var popular by remember { mutableStateOf<List<ResultDTO>>(emptyList()) }
-    var topRated by remember { mutableStateOf<List<ResultDTO>>(emptyList()) }
-    var upcoming by remember { mutableStateOf<List<ResultDTO>>(emptyList()) }
 
-    LaunchedEffect(Unit) {
-        try {
-            val response = apiService.getUpcoming()
-            if (response.isSuccessful) {
-                response.body()?.results?.let {
-                    upcoming = it
-                }
-            } else {
-                Log.e(
-                    "MainActivity",
-                    "Error code - ${response.code()} - Error Body ${response.errorBody()}"
-                )
-            }
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Exception $e")
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        try {
-            val response = apiService.getPopular()
-            if (response.isSuccessful) {
-                response.body()?.results?.let {
-                    popular = it
-                }
-            } else {
-                Log.e(
-                    "MainActivity",
-                    "Error code ${response.code()} - Error Body ${response.errorBody()}"
-                )
-            }
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Exceção ao buscar filmes", e)
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        try {
-            val response = apiService.getTopRated()
-            if (response.isSuccessful) {
-                response.body()?.results?.let {
-                    topRated = it
-                }
-            } else {
-                Log.e("MainActivity", "Erro ${response.code()} - ${response.errorBody()}")
-            }
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Exceção ao buscar filmes", e)
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        try {
-            val response = apiService.getNowPlaying()
-            if (response.isSuccessful) {
-                response.body()?.results?.let {
-                    nowPlaying = it
-                }
-            } else {
-                Log.e(
-                    "MainActivity",
-                    "Error code ${response.code()} - Error Body ${response.errorBody()}"
-                )
-            }
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Exception : $e")
-        }
-    }
+    val uiState by viewModel.uiState.collectAsState()
 
 
     HomeContent(
-        topRated = topRated,
-        nowPlaying = nowPlaying,
-        popular = popular,
-        upcoming = upcoming,
+        topRated = uiState.topRated,
+        nowPlaying = uiState.nowPlaying,
+        popular = uiState.popular,
+        upcoming = uiState.upcoming,
         onClick = { resultDto ->
             navController.navigate(route = "DetailScreen/${resultDto.id}")
         },

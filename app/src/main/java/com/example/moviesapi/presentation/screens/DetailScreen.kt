@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,42 +17,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.moviesapi.data.remote.api.ApiService
 import com.example.moviesapi.data.remote.dto.DetailDTO
 import com.example.moviesapi.data.remote.dto.ResultDTO
+import com.example.moviesapi.presentation.viewmodel.DetailViewModel
 
 @Composable
 fun DetailScreen(
     itemId: String,
     navHostController: NavHostController,
-    apiService: ApiService,
+    viewModel: DetailViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    var resultDto by remember { mutableStateOf<DetailDTO?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        try {
-            val response = apiService.getDetailMovie(movieId = itemId)
-            if (response.isSuccessful) {
-                response.body()?.let {
-                    resultDto = it
-                }
-            } else {
-                Log.e(
-                    "DetailScreen",
-                    "Error code ${response.code()} - Error Body - ${response.errorBody()}"
-                )
-            }
-        } catch (e: Exception) {
-            Log.e("DetailScreen", "Exception erro $e")
-        }
+        viewModel.fetchDetail(itemId)
     }
 
-
-    resultDto?.let {
+    uiState.detailDTO?.let {
         DetailContent(
+            modifier = modifier,
             resultDto = it,
             onBack = {
                 navHostController.popBackStack()

@@ -53,6 +53,8 @@ dependencies {
 
     // DAGGER HILT
     implementation("com.google.dagger:hilt-android:2.51.1")
+    // Dependência para integração do Hilt com o Jetpack Compose
+    implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
     ksp("com.google.dagger:hilt-android-compiler:2.51.1")
     // NAVIGATION COMPOSE
     implementation("androidx.navigation:navigation-compose:2.8.8")

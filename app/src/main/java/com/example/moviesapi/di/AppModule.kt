@@ -1,8 +1,9 @@
 package com.example.moviesapi.di
 
 import android.util.Log
+import com.example.moviesapi.commom.Constants
 import com.example.moviesapi.data.remote.api.ApiService
-import com.example.moviesapi.util.Constants
+import com.example.moviesapi.presentation.viewmodel.HomeViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,19 +16,19 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object ApModule {
+object AppModule {
 
     @Provides
     @Singleton
-    fun providesLoggingInterceptor(): HttpLoggingInterceptor{
-        return HttpLoggingInterceptor{message -> Log.i("API_LOG", message) }.apply {
+    fun providesLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor { message -> Log.i("API_LOG", message) }.apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
     }
 
     @Singleton
     @Provides
-    fun providesOkHttpClient(httpLoggingInterceptor: HttpLoggingInterceptor): OkHttpClient{
+    fun providesOkHttpClient(httpLoggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(httpLoggingInterceptor)
             .build()
@@ -36,7 +37,7 @@ object ApModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit{
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
             .client(okHttpClient)
@@ -49,4 +50,6 @@ object ApModule {
     fun provideApiService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
     }
+
+
 }
