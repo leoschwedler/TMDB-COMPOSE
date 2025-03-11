@@ -1,9 +1,13 @@
 package com.example.moviesapi.di
 
 import android.util.Log
-import com.example.moviesapi.commom.Constants
-import com.example.moviesapi.data.remote.api.ApiService
-import com.example.moviesapi.presentation.viewmodel.HomeViewModel
+import com.example.moviesapi.commom.util.Constants
+import com.example.moviesapi.detail.data.remote.api.DetailService
+import com.example.moviesapi.detail.data.repository.DetailRepository
+import com.example.moviesapi.detail.data.repository.DetailRepositoryImpl
+import com.example.moviesapi.home.data.remote.api.HomeService
+import com.example.moviesapi.home.data.repository.HomeRepository
+import com.example.moviesapi.home.data.repository.HomeRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,8 +51,27 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideApiService(retrofit: Retrofit): ApiService {
-        return retrofit.create(ApiService::class.java)
+    fun provideHomeService(retrofit: Retrofit): HomeService {
+        return retrofit.create(HomeService::class.java)
+    }
+
+
+    @Singleton
+    @Provides
+    fun provideDetailService(retrofit: Retrofit): DetailService {
+        return retrofit.create(DetailService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideHomeRepository(service: HomeService): HomeRepository {
+        return HomeRepositoryImpl(service)
+    }
+
+    @Singleton
+    @Provides
+    fun provideDetailRepository(service: DetailService): DetailRepository{
+        return DetailRepositoryImpl(service)
     }
 
 

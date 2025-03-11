@@ -7,8 +7,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.moviesapi.presentation.screens.DetailScreen
-import com.example.moviesapi.presentation.screens.HomeScreen
+import com.example.moviesapi.detail.presentation.ui.DetailScreen
+import com.example.moviesapi.home.presentation.ui.HomeScreen
 
 @Composable
 fun NavControllerApp(
