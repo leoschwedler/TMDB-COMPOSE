@@ -66,7 +66,7 @@ fun DetailContent(
 
 
         Button(onClick = onBack) {
-            Text("BACK TU BACK")
+            Text("BACK")
 
         }
     }

@@ -58,7 +58,7 @@ private fun HomeContent(
                 rememberScrollState()
             )
     ) {
-        Text("CineLelis", fontWeight = FontWeight.SemiBold, fontSize = 40.sp)
+        Text("CineNow", fontWeight = FontWeight.SemiBold, fontSize = 40.sp)
         Spacer(Modifier.height(20.dp))
         MovieSession(
             label = "Top Rated", onclick = onClick, movie = homeUiState.topRated
