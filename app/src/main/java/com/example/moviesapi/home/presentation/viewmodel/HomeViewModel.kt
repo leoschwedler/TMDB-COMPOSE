@@ -1,9 +1,9 @@
 package com.example.moviesapi.home.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.moviesapi.commom.model.Result
-import com.example.moviesapi.home.data.remote.dto.toHomeUiData
+import com.example.moviesapi.commom.model.toHomeUiData
 import com.example.moviesapi.home.data.repository.HomeRepository
 import com.example.moviesapi.home.presentation.model.HomeUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,49 +27,28 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepository) 
         loadNowPlaying()
     }
 
-    fun loadUpcoming() {
+    fun loadNowPlaying() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            val result = repository.fetchUpcoming()
-            when (result) {
-                is Result.Success -> {
-                    val homeUiData = result.data.map { it.toHomeUiData() }
-                    _uiState.update { it.copy(upcoming = homeUiData, isLoading = false) }
-                }
-
-                is Result.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            isError = true,
-                            isLoading = false,
-                            errorMessage = result.errorMessage
-                        )
+            repository.fetchNowPlaying().fold(
+                onSuccess = {
+                    val result = it.map { it.toHomeUiData() }
+                    _uiState.update { it.copy(nowPlaying = result, isLoading = false) }
+                },
+                onFailure = {
+                    if (it is UnknownHostException) {
+                        _uiState.update {
+                            it.copy(
+                                isError = true,
+                                errorMessage = "Not internet connection",
+                                isLoading = false
+                            )
+                        }
+                    } else {
+                        _uiState.update { it.copy(isError = true, isLoading = false) }
                     }
                 }
-            }
-        }
-    }
-
-    fun loadPopular() {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            val result = repository.fetchPopular()
-            when (result) {
-                is Result.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            isError = true,
-                            errorMessage = result.errorMessage,
-                            isLoading = false
-                        )
-                    }
-                }
-
-                is Result.Success -> {
-                    val homeUiData = result.data.map { it.toHomeUiData() }
-                    _uiState.update { it.copy(popular = homeUiData, isLoading = false) }
-                }
-            }
+            )
         }
     }
 
@@ -76,46 +56,77 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepository) 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             val result = repository.fetchTopRated()
-            when (result) {
-                is Result.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isError = true,
-                            errorMessage = result.errorMessage
-                        )
+            result.fold(
+                onSuccess = {
+                    val result = it.map { it.toHomeUiData() }
+                    _uiState.update { it.copy(topRated = result, isLoading = false) }
+                },
+                onFailure = {
+                    if (it is UnknownHostException) {
+                        _uiState.update {
+                            it.copy(
+                                isError = true,
+                                errorMessage = "Not internet connection",
+                                isLoading = false
+                            )
+                        }
+                    } else {
+                        _uiState.update { it.copy(isError = true, isLoading = false) }
                     }
                 }
-
-                is Result.Success -> {
-                    val homeUiData = result.data.map { it.toHomeUiData() }
-                    _uiState.update { it.copy(topRated = homeUiData, isLoading = false) }
-                }
-            }
+            )
         }
     }
 
-    fun loadNowPlaying() {
+    fun loadPopular() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            val result = repository.fetchNowPlaying()
-            when (result) {
-                is Result.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            isError = true,
-                            errorMessage = result.errorMessage
-                        )
+            val result = repository.fetchPopular()
+            result.fold(
+                onSuccess = {
+                    val result = it.map { it.toHomeUiData() }
+                    _uiState.update { it.copy(popular = result, isLoading = false) }
+                },
+                onFailure = {
+                    if (it is UnknownHostException) {
+                        _uiState.update {
+                            it.copy(
+                                isError = true,
+                                errorMessage = "Not internet connection",
+                                isLoading = false
+                            )
+                        }
+                    } else {
+                        _uiState.update { it.copy(isError = true, isLoading = false) }
                     }
                 }
-
-                is Result.Success -> {
-                    val homeUiData = result.data.map { it.toHomeUiData() }
-                    _uiState.update { it.copy(isLoading = false, nowPlaying = homeUiData) }
-                }
-            }
+            )
         }
     }
 
+    fun loadUpcoming() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            val result = repository.fetchUpcoming()
+            result.fold(
+                onSuccess = {
+                    val upComingUiData = it.map { it.toHomeUiData() }
+                    _uiState.update { it.copy(upcoming = upComingUiData, isLoading = false) }
+                },
+                onFailure = {
+                    if (it is UnknownHostException) {
+                        _uiState.update {
+                            it.copy(
+                                isError = true,
+                                errorMessage = "Not internet connection",
+                                isLoading = false
+                            )
+                        }
+                    } else {
+                        _uiState.update { it.copy(isError = true, isLoading = false) }
+                    }
+                }
+            )
+        }
+    }
 }

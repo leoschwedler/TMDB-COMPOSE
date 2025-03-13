@@ -10,7 +10,7 @@ data class HomeUiState(
     val upcoming: List<HomeUiData> = emptyList(),
     val isLoading: Boolean = false,
     val isError: Boolean = false,
-    val errorMessage: String = ""
+    val errorMessage: String = "Something went wrong"
 )
 
 data class HomeUiData(

@@ -1,6 +1,7 @@
 package com.example.moviesapi.home.data.remote.dto
 
-import com.example.moviesapi.home.presentation.model.HomeUiData
+import com.example.moviesapi.commom.model.Category
+import com.example.moviesapi.commom.model.Movie
 import com.google.gson.annotations.SerializedName
 
 data class ResultDTO(
@@ -9,15 +10,16 @@ data class ResultDTO(
     val posterPath: String,
     val overview: String,
     val title: String
-){
+) {
     val fullPatch get() = "https://image.tmdb.org/t/p/w300$posterPath"
 }
 
-fun ResultDTO.toHomeUiData(): HomeUiData{
-    return HomeUiData(
+fun ResultDTO.toMovie(category: Category): Movie {
+    return Movie(
         id = id,
-        image =  fullPatch,
+        image = fullPatch,
         overview = overview,
-        title = title
+        title = title,
+        category = category
     )
 }

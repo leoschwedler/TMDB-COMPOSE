@@ -28,9 +28,8 @@ import com.example.moviesapi.home.presentation.viewmodel.HomeViewModel
 fun HomeScreen(
     navController: NavHostController,
     viewModel: HomeViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
     val uiState by viewModel.uiState.collectAsState()
 
 
@@ -61,16 +60,16 @@ private fun HomeContent(
         Text("CineNow", fontWeight = FontWeight.SemiBold, fontSize = 40.sp)
         Spacer(Modifier.height(20.dp))
         MovieSession(
-            label = "Top Rated", onclick = onClick, movie = homeUiState.topRated
+            label = "Top Rated", onclick = onClick, movie = homeUiState.topRated, uiState = homeUiState
         )
         MovieSession(
-            label = "Now Playing", onclick = onClick, movie = homeUiState.nowPlaying
+            label = "Now Playing", onclick = onClick, movie = homeUiState.nowPlaying, uiState = homeUiState
         )
         MovieSession(
-            label = "Popular", onclick = onClick, movie = homeUiState.popular
+            label = "Popular", onclick = onClick, movie = homeUiState.popular, uiState = homeUiState,
         )
         MovieSession(
-            label = "Upcoming", onclick = onClick, movie = homeUiState.upcoming
+            label = "Upcoming", onclick = onClick, movie = homeUiState.upcoming, uiState = homeUiState,
         )
     }
 }

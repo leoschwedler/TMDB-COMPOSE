@@ -43,6 +43,7 @@ android {
 }
 
 dependencies {
+    val room_version = "2.6.1"
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -62,6 +63,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     // COIL SYNC IMAGE
     implementation("io.coil-kt:coil-compose:2.6.0")
+    // ROOM
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
 
     // RETROFIT AND OKHTTP3
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

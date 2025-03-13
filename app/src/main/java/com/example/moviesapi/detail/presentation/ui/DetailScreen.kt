@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,13 +12,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.moviesapi.detail.data.remote.dto.DetailDTO
-import com.example.moviesapi.detail.presentation.model.DetailUiData
+import com.example.moviesapi.detail.presentation.model.DetailUiState
 import com.example.moviesapi.detail.presentation.viewmodel.DetailViewModel
 
 @Composable
@@ -30,25 +31,23 @@ fun DetailScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(itemId) {
-        viewModel.loadDetail(id = itemId)
+        viewModel.loadDetail(movieId = itemId)
     }
 
+    DetailContent(
+        uiState = uiState,
+        onBack = {
+            navHostController.popBackStack()
+        },
+        modifier = modifier
+    )
 
-    uiState.detailUiData?.let {
-        DetailContent(
-            modifier = modifier,
-            detailUIData = it,
-            onBack = {
-                navHostController.popBackStack()
-            }
-        )
-    }
 
 }
 
 @Composable
 fun DetailContent(
-    detailUIData: DetailUiData,
+    uiState: DetailUiState,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -57,12 +56,25 @@ fun DetailContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        AsyncImage(
-            model = detailUIData.image,
-            contentScale = ContentScale.Crop,
-            contentDescription = null
-        )
-        Text(detailUIData.original_title)
+
+        when {
+            uiState.isLoading -> {
+                CircularProgressIndicator()
+            }
+
+            uiState.isError -> {
+                Text(text = uiState.errorMessage, color = Color.Red)
+            }
+
+            else -> {
+                AsyncImage(
+                    model = uiState.listDetail?.image,
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+                uiState.listDetail?.original_title?.let { Text(it) }
+            }
+        }
 
 
         Button(onClick = onBack) {

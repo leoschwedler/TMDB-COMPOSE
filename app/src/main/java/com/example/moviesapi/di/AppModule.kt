@@ -1,16 +1,23 @@
 package com.example.moviesapi.di
 
+import android.content.Context
 import android.util.Log
+import androidx.room.Room
+import com.example.moviesapi.commom.data.local.dao.MovieDao
+import com.example.moviesapi.commom.data.local.database.AppDatabase
 import com.example.moviesapi.commom.util.Constants
 import com.example.moviesapi.detail.data.remote.api.DetailService
 import com.example.moviesapi.detail.data.repository.DetailRepository
 import com.example.moviesapi.detail.data.repository.DetailRepositoryImpl
+import com.example.moviesapi.home.data.local.localDataSource.LocalDataSource
+import com.example.moviesapi.home.data.remote.RemoteDataSource.RemoteDataSource
 import com.example.moviesapi.home.data.remote.api.HomeService
 import com.example.moviesapi.home.data.repository.HomeRepository
 import com.example.moviesapi.home.data.repository.HomeRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -64,15 +71,40 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideHomeRepository(service: HomeService): HomeRepository {
-        return HomeRepositoryImpl(service)
+    fun provideHomeRepository(
+        localDataSource: LocalDataSource,
+        remoteDataSource: RemoteDataSource
+    ): HomeRepository {
+        return HomeRepositoryImpl(localDataSource, remoteDataSource)
     }
 
     @Singleton
     @Provides
-    fun provideDetailRepository(service: DetailService): DetailRepository{
+    fun provideDetailRepository(service: DetailService): DetailRepository {
         return DetailRepositoryImpl(service)
     }
 
+    @Singleton
+    @Provides
+    fun provideDataBase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "database-name"
+        ).build()
+    }
+
+    @Provides
+    fun provideMovieDao(db: AppDatabase): MovieDao {
+        return db.getMovieDao()
+    }
+
+    fun localDataSource(movieDao: MovieDao): LocalDataSource {
+        return LocalDataSource(movieDao)
+    }
+
+    fun RemoteDataSource(service: HomeService): RemoteDataSource {
+        return RemoteDataSource(service)
+    }
 
 }

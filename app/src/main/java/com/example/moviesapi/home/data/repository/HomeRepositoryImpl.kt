@@ -1,63 +1,96 @@
 package com.example.moviesapi.home.data.repository
 
-import com.example.moviesapi.commom.model.Result
-import com.example.moviesapi.home.data.remote.api.HomeService
-import com.example.moviesapi.home.data.remote.dto.ResultDTO
+import com.example.moviesapi.commom.model.Movie
+import com.example.moviesapi.home.data.local.localDataSource.LocalDataSource
+import com.example.moviesapi.home.data.remote.RemoteDataSource.RemoteDataSource
 import javax.inject.Inject
 
-class HomeRepositoryImpl @Inject constructor(val service: HomeService): HomeRepository {
+class HomeRepositoryImpl @Inject constructor(
+    val local: LocalDataSource,
+    val remote: RemoteDataSource
+) : HomeRepository {
 
-    override suspend fun fetchUpcoming(): Result<List<ResultDTO>> {
+    companion object {
+        private const val TAG = "HomeRepositoryImpl"
+    }
+
+    override suspend fun fetchUpcoming(): Result<List<Movie>> {
         return try {
-            val response = service.getUpcoming()
-            if (response.isSuccessful) {
-                response.body()?.results?.let {
-                    Result.Success(it)
-                } ?: Result.Error("Resposta vazia")
-            } else {
-                Result.Error("Error code: ${response.code()} - Error body: ${response.errorBody()?.toString()}")
+            val result = remote.fetchUpcoming()
+            if (result.isSuccess){
+                val moviesRemote = result.getOrNull() ?: emptyList()
+                if (moviesRemote.isNotEmpty()){
+                    local.updateLocalDataBase(moviesRemote)
+                }
+            }else{
+                val localData = local.getUpcoming()
+                if (localData.isEmpty()){
+                    return result
+                }
             }
-        } catch (e: Exception) {
-            Result.Error("Exception: $e")
+            Result.success(local.getUpcoming())
+        }catch (e: Exception){
+            Result.failure(e)
         }
     }
 
-    override suspend fun fetchPopular(): Result<List<ResultDTO>> {
+    override suspend fun fetchPopular(): Result<List<Movie>> {
         return try {
-            val response = service.getPopular()
-            if (response.isSuccessful){
-                response.body()?.results?.let { Result.Success(it) } ?: Result.Error("Response void")
+            val result = remote.fetchPopular()
+            if (result.isSuccess){
+                val moviesRemote = result.getOrNull() ?: emptyList()
+                if (moviesRemote.isNotEmpty()){
+                    local.updateLocalDataBase(moviesRemote)
+                }
             }else{
-                Result.Error("Error code: ${response.code()} - Error body: ${response.errorBody()?.toString()}")
+                val localData = local.getPopular()
+                if (localData.isEmpty()){
+                    return result
+                }
             }
+            Result.success(local.getPopular())
         }catch (e: Exception){
-            Result.Error("Exception $e")
+            Result.failure(e)
         }
     }
 
-    override suspend fun fetchTopRated(): Result<List<ResultDTO>> {
+    override suspend fun fetchTopRated(): Result<List<Movie>> {
         return try {
-            val response = service.getTopRated()
-            if (response.isSuccessful){
-                response.body()?.results?.let { Result.Success(it) } ?: Result.Error("Response void")
+            val result = remote.fetchTopRated()
+            if (result.isSuccess){
+                val moviesRemote = result.getOrNull() ?: emptyList()
+                if (moviesRemote.isNotEmpty()){
+                    local.updateLocalDataBase(moviesRemote)
+                }
             }else{
-                Result.Error("Error code: ${response.code()} - Error body: ${response.errorBody()?.toString()}")
+                val localData = local.getTopRated()
+                if (localData.isEmpty()){
+                    return result
+                }
             }
+            Result.success(local.getTopRated())
         }catch (e: Exception){
-            Result.Error("Exception: $e")
+            Result.failure(e)
         }
     }
 
-    override suspend fun fetchNowPlaying(): Result<List<ResultDTO>> {
+    override suspend fun fetchNowPlaying(): Result<List<Movie>> {
         return try {
-            val response = service.getNowPlaying()
-            if (response.isSuccessful){
-                response.body()?.results?.let { Result.Success(it) } ?: Result.Error("Response void")
+            val result = remote.fetchNowPlaying()
+            if (result.isSuccess){
+                val moviesRemote = result.getOrNull() ?: emptyList()
+                if (moviesRemote.isNotEmpty()){
+                    local.updateLocalDataBase(moviesRemote)
+                }
             }else{
-                Result.Error("Error code: ${response.code()} - Error body: ${response.errorBody()?.toString()}")
+                val localData = local.getNowPlaying()
+                if (localData.isEmpty()){
+                    return result
+                }
             }
+            Result.success(local.getNowPlaying())
         }catch (e: Exception){
-            Result.Error("Exception: $e")
+            Result.failure(e)
         }
     }
 }
